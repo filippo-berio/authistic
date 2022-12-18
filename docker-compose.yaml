@@ -1,0 +1,41 @@
+version: "3.7"
+
+services:
+    auth:
+        build:
+            context: .
+            target: dev
+        command: npm run start:dev
+        env_file:
+            - .env
+        volumes:
+            - "./:/app/"
+        ports:
+            - ${AUTH_PORT}:3000
+        links:
+            - postgres
+            - redis
+        container_name: auth-app
+
+    postgres:
+        image: postgres:14.5-alpine
+        restart: always
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        volumes:
+            - ./docker/postgres/data:/var/lib/postgresql/data
+        ports:
+            - ${POSTGRES_PORT}:5432
+        container_name: auth-postgres
+
+    redis:
+        image: redis:7.0.5-alpine
+        restart: always
+        ports:
+            - ${REDIS_PORT}:6379
+        volumes:
+            - ./docker/redis/data:/data
+        container_name: auth-redis
+
